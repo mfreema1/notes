@@ -149,6 +149,8 @@ Error message and password prompt
 
 <li>$:/core</li>
 
+<li>$:/DefaultTiddlers</li>
+
 <li>$:/GitHub/Filename</li>
 
 <li>$:/GitHub/Path</li>
@@ -411,13 +413,19 @@ Error message and password prompt
 
 <li>16th September 2019</li>
 
+<li>17th September 2019</li>
+
 <li>cs-511</li>
 
 <li>Dynamo</li>
 
 <li>Readers and Writers</li>
 
+<li>SAML</li>
+
 <li>Semaphores</li>
+
+<li>Service vs. Identity Provider</li>
 
 </ul>
 </p>
@@ -9631,6 +9639,9 @@ Error message and password prompt
     }
 }</pre>
 </div>
+<div created="20190917162734183" modified="20190917162734183" title="$:/DefaultTiddlers">
+<pre></pre>
+</div>
 <div created="20190916160710840" modified="20190916160712820" title="$:/GitHub/Filename">
 <pre>index.html</pre>
 </div>
@@ -9948,7 +9959,7 @@ Error message and password prompt
 <div created="20190916154326007" modified="20190916162802575" title="$:/state/tab/sidebar--595412856">
 <pre>$:/core/ui/SideBar/Tools</pre>
 </div>
-<div created="20190917012850768" list="Dynamo [[16th September 2019]]" modified="20190917012850768" title="$:/StoryList">
+<div created="20190917162744812" list="SAML [[Service vs. Identity Provider]] [[16th September 2019]] Dynamo [[17th September 2019]]" modified="20190917163506589" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20190916161712643" modified="20190916161712643" title="$:/temp/HidePluginWarning">
@@ -10771,8 +10782,8 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20190916161527912" modified="20190916164738024" title="$:/temp/RemoteAssetSearch/$:/config/OfficialPluginLibrary">
 <pre></pre>
 </div>
-<div created="20190916162750281" modified="20190916165257157" title="$:/temp/search">
-<pre>cs-511</pre>
+<div created="20190916162750281" modified="20190917220803275" title="$:/temp/search">
+<pre>SAML</pre>
 </div>
 <div created="20190916161424322" modified="20190916161424322" tags="$:/tags/ServerConnection" title="$:/temp/ServerConnection/https://tiddlywiki.com/library/v5.1.21/index.html" url="https://tiddlywiki.com/library/v5.1.21/index.html">
 <pre>loaded</pre>
@@ -10928,6 +10939,23 @@ Nevermind, we may need to instead implement some sort of Adjacency list structur
 
 Keep looking into it [here](https://stackoverflow.com/questions/50205518/dynamodb-m-m-adjacency-list-design-pattern)</pre>
 </div>
+<div created="20190917162855100" modified="20190917183305639" tags="Dynamo Journal" title="17th September 2019">
+<pre>It looks like we may want to store information in our table, using the sorting key to our advantage.  I predict that we could use the following to implement the _Get Projects_ use case.
+
+| __ProjectId (Partition Key)__  | __Node (Sort Key)__  | __Title__  | __CreatedOn__  |
+| 23b79a7d-7e53 | head | TopSecretProject007 | 1568737996 |
+| ae744be0-620e | head | AnotherProject123 | 1568738079 |
+
+At the head of the item, we would need to store all information that the client application would want in order to generate a page of cards for the projects.  This might include a link to a thumbnail and some description attributes such as a title, description, etc.
+
+So for the above, to fetch all of t
+
+Once the item is clicked on, then we might need to load more information.  This is where a composite sort key might come in handy.
+
+| __ProjectId (Partition Key)__  | __Node (Sort Key)__  | __Title__  | __CreatedOn__  |
+| 23b79a7d-7e53 | head | TopSecretProject007 | 1568737996 |
+| ae744be0-620e | head | AnotherProject123 | 1568738079 |</pre>
+</div>
 <div created="20190916154314553" modified="20190916165655248" tags="Semaphores Programming Concurrency" title="cs-511" type="text/vnd.tiddlywiki">
 <pre>CS-511 is a concurrent programming course at Stevens.  This should give me some basics on understanding concurrency at both a general level, as well as how to implement these concepts in languages such as Erlang and Java.
 
@@ -10972,8 +11000,18 @@ There's a notion of cascading signaling, which occurs when one release triggers 
 
 Note that this solution is not fair on writers – a writer will not get to write as long as readers are around. We typically don't consider fairness all too much in this course, mainly because it is very hard to find solutions that are both correct and fair. Take a look at The Little Book of Semaphores for further learning.</pre>
 </div>
+<div created="20190917220806633" modified="20190917220817507" tags="" title="SAML">
+<pre>Top level for SAML</pre>
+</div>
 <div created="20190916165750326" modified="20190916165829635" tags="cs-511" title="Semaphores" type="text/vnd.tiddlywiki">
 <pre># Some markdown text</pre>
+</div>
+<div created="20190917220819689" modified="20190917221509975" tags="SAML" title="Service vs. Identity Provider">
+<pre>A user logs in with the identity provider.  The identity provider passes SAML attributes to the service provider when the user attempts to access those services.  We need to know what will be in those SAML attributes so that we can ensure proper architecture for our application.
+
+I'm assuming that there has to be some sort of identity that they will pass back for the user, so we should be fine to architect our application around whatever id they happen to be using.
+
+So then, on every request, we'll have to look at their cookie, and send that over to the Shibboleth identity provider to get access to their stuff.  This adds in another API call to our application, but really isn't much in the grand scheme of things.  Should be able to wrap this up into a middleware to keep it away from our developers for the most part.</pre>
 </div>
 
 </div>
