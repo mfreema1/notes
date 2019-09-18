@@ -145,6 +145,8 @@ Error message and password prompt
 
 <li>$:/config/AutoSave</li>
 
+<li>$:/config/markdown/dialect</li>
+
 <li>$:/config/PageControlButtons/Visibility/$:/core/ui/Buttons/theme</li>
 
 <li>$:/core</li>
@@ -187,15 +189,21 @@ Error message and password prompt
 
 <li>$:/state/folded/GettingStarted</li>
 
+<li>$:/state/plugin-info-896098052-$:/plugins/tiddlywiki/markdown--436478829</li>
+
 <li>$:/state/sidebar</li>
 
 <li>$:/state/tab--86143343</li>
+
+<li>$:/state/tab-1163638994</li>
 
 <li>$:/state/tab-1342078386</li>
 
 <li>$:/state/tab-1749438307</li>
 
 <li>$:/state/tab-2065006209</li>
+
+<li>$:/state/tab/moresidebar-1850697562</li>
 
 <li>$:/state/tab/sidebar--595412856</li>
 
@@ -442,6 +450,9 @@ Error message and password prompt
 </div>
 <div created="20190916165236867" modified="20190916165236867" title="$:/config/AutoSave">
 <pre>no</pre>
+</div>
+<div created="20190918012514727" modified="20190918012516588" title="$:/config/markdown/dialect">
+<pre>Maruku</pre>
 </div>
 <div created="20190916154337250" modified="20190916154337250" title="$:/config/PageControlButtons/Visibility/$:/core/ui/Buttons/theme">
 <pre>show</pre>
@@ -9941,25 +9952,34 @@ Error message and password prompt
 <div created="20190916161831675" modified="20190916161841246" title="$:/state/folded/GettingStarted">
 <pre>show</pre>
 </div>
+<div created="20190918012427806" modified="20190918012427806" title="$:/state/plugin-info-896098052-$:/plugins/tiddlywiki/markdown--436478829">
+<pre>usage</pre>
+</div>
 <div created="20190916161251452" modified="20190916165743991" title="$:/state/sidebar">
 <pre>yes</pre>
 </div>
-<div created="20190916161419645" modified="20190916164357354" title="$:/state/tab--86143343">
-<pre>$:/core/ui/ControlPanel/Plugins/Installed/Themes</pre>
+<div created="20190916161419645" modified="20190918012421806" title="$:/state/tab--86143343">
+<pre>$:/core/ui/ControlPanel/Plugins/Installed/Plugins</pre>
+</div>
+<div created="20190918012312742" modified="20190918012312903" title="$:/state/tab-1163638994">
+<pre>$:/core/ui/MoreSideBar/Plugins/Plugins</pre>
 </div>
 <div created="20190916161619513" modified="20190916164323659" title="$:/state/tab-1342078386">
 <pre>$:/core/ui/ControlPanel/Plugins/Add/Themes</pre>
 </div>
-<div created="20190916153635448" modified="20190916165230500" title="$:/state/tab-1749438307">
-<pre>$:/core/ui/ControlPanel/Saving</pre>
+<div created="20190916153635448" modified="20190918012320405" title="$:/state/tab-1749438307">
+<pre>$:/core/ui/ControlPanel/Plugins</pre>
 </div>
 <div created="20190916153640250" modified="20190916165233376" title="$:/state/tab-2065006209">
 <pre>$:/core/ui/ControlPanel/Saving/General</pre>
 </div>
-<div created="20190916154326007" modified="20190916162802575" title="$:/state/tab/sidebar--595412856">
-<pre>$:/core/ui/SideBar/Tools</pre>
+<div created="20190918012259259" modified="20190918012314385" title="$:/state/tab/moresidebar-1850697562">
+<pre>$:/core/ui/MoreSideBar/All</pre>
 </div>
-<div created="20190917162744812" list="SAML [[Service vs. Identity Provider]] [[16th September 2019]] Dynamo [[17th September 2019]]" modified="20190917163506589" title="$:/StoryList">
+<div created="20190916154326007" modified="20190918012252231" title="$:/state/tab/sidebar--595412856">
+<pre>$:/core/ui/SideBar/More</pre>
+</div>
+<div created="20190918005603388" list="[[17th September 2019]]" modified="20190918012429867" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20190916161712643" modified="20190916161712643" title="$:/temp/HidePluginWarning">
@@ -10779,11 +10799,11 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div author="JeremyRuston" core-version="&gt;=5.0.0" created="20190916161424346" dependents="" description="Basic theme" modified="20190916161424346" name="Vanilla" original-plugin-type="theme" original-tags="" original-title="$:/themes/tiddlywiki/vanilla" original-type="application/json" plugin-priority="0" server-url="https://tiddlywiki.com/library/v5.1.21/index.html" tags="$:/tags/RemoteAssetInfo" title="$:/temp/RemoteAssetInfo/https://tiddlywiki.com/library/v5.1.21/index.html/$:/themes/tiddlywiki/vanilla" type="text/vnd.tiddlywiki" version="5.1.21">
 <pre></pre>
 </div>
-<div created="20190916161527912" modified="20190916164738024" title="$:/temp/RemoteAssetSearch/$:/config/OfficialPluginLibrary">
-<pre></pre>
+<div created="20190916161527912" modified="20190918012325869" title="$:/temp/RemoteAssetSearch/$:/config/OfficialPluginLibrary">
+<pre>maruku</pre>
 </div>
-<div created="20190916162750281" modified="20190917220803275" title="$:/temp/search">
-<pre>SAML</pre>
+<div created="20190916162750281" modified="20190918012416248" title="$:/temp/search">
+<pre></pre>
 </div>
 <div created="20190916161424322" modified="20190916161424322" tags="$:/tags/ServerConnection" title="$:/temp/ServerConnection/https://tiddlywiki.com/library/v5.1.21/index.html" url="https://tiddlywiki.com/library/v5.1.21/index.html">
 <pre>loaded</pre>
@@ -10939,7 +10959,7 @@ Nevermind, we may need to instead implement some sort of Adjacency list structur
 
 Keep looking into it [here](https://stackoverflow.com/questions/50205518/dynamodb-m-m-adjacency-list-design-pattern)</pre>
 </div>
-<div created="20190917162855100" modified="20190917183305639" tags="Dynamo Journal" title="17th September 2019">
+<div created="20190917162855100" modified="20190918012536195" tags="Dynamo Journal" title="17th September 2019" type="text/x-markdown">
 <pre>It looks like we may want to store information in our table, using the sorting key to our advantage.  I predict that we could use the following to implement the _Get Projects_ use case.
 
 | __ProjectId (Partition Key)__  | __Node (Sort Key)__  | __Title__  | __CreatedOn__  |
@@ -10948,13 +10968,32 @@ Keep looking into it [here](https://stackoverflow.com/questions/50205518/dynamod
 
 At the head of the item, we would need to store all information that the client application would want in order to generate a page of cards for the projects.  This might include a link to a thumbnail and some description attributes such as a title, description, etc.
 
-So for the above, to fetch all of t
-
 Once the item is clicked on, then we might need to load more information.  This is where a composite sort key might come in handy.
 
 | __ProjectId (Partition Key)__  | __Node (Sort Key)__  | __Title__  | __CreatedOn__  |
 | 23b79a7d-7e53 | head | TopSecretProject007 | 1568737996 |
-| ae744be0-620e | head | AnotherProject123 | 1568738079 |</pre>
+| ae744be0-620e | head | AnotherProject123 | 1568738079 |
+
+We could try this for stars and other many to many things:
+
+| __ProjectId (Partition Key)__ | __Aspect (Sort Key)__ | __User__ |
+| 23b79a7d-7e53 | stars | user1 |
+| 23b79a7d-7e53 | stars | user2 |
+
+This is just a way of destructuring the data to duplicate the project information as little as possible.  We are using the sort key to sort of &quot;peek into&quot; the data further, where we can get a sort of &quot;different schema&quot; at that level.
+
+This would answer the questions (syntax is pseudocode):
+
+1. How many users like this project?
+    * GET COUNT WHERE PartitionKey = 'id' AND SortKey = 'stars'
+    * O(stars for project) time
+
+2. Does this user like this project?
+    * GET WHERE PartitionKey = 'id' AND SortKey = 'stars' SCAN User = 'user1'
+    * O(stars for project) time
+
+3. What users like this project? _(Not really an important question, but good to know that we can answer it)_
+</pre>
 </div>
 <div created="20190916154314553" modified="20190916165655248" tags="Semaphores Programming Concurrency" title="cs-511" type="text/vnd.tiddlywiki">
 <pre>CS-511 is a concurrent programming course at Stevens.  This should give me some basics on understanding concurrency at both a general level, as well as how to implement these concepts in languages such as Erlang and Java.
