@@ -9984,7 +9984,7 @@ Error message and password prompt
 <div created="20190916154326007" modified="20190918013741987" title="$:/state/tab/sidebar--595412856">
 <pre>$:/core/ui/SideBar/Tools</pre>
 </div>
-<div created="20190918013101751" list="" modified="20190918014335664" title="$:/StoryList">
+<div created="20190918020345379" list="Semaphores [[17th September 2019]]" modified="20190920031011528" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20190916161712643" modified="20190916161712643" title="$:/temp/HidePluginWarning">
@@ -10807,8 +10807,8 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20190916161527912" modified="20190918012325869" title="$:/temp/RemoteAssetSearch/$:/config/OfficialPluginLibrary">
 <pre>maruku</pre>
 </div>
-<div created="20190916162750281" modified="20190918012416248" title="$:/temp/search">
-<pre></pre>
+<div created="20190916162750281" modified="20190920031010195" title="$:/temp/search">
+<pre>cs-5</pre>
 </div>
 <div created="20190916161424322" modified="20190916161424322" tags="$:/tags/ServerConnection" title="$:/temp/ServerConnection/https://tiddlywiki.com/library/v5.1.21/index.html" url="https://tiddlywiki.com/library/v5.1.21/index.html">
 <pre>loaded</pre>
@@ -10964,7 +10964,7 @@ Nevermind, we may need to instead implement some sort of Adjacency list structur
 
 Keep looking into it [here](https://stackoverflow.com/questions/50205518/dynamodb-m-m-adjacency-list-design-pattern)</pre>
 </div>
-<div created="20190917162855100" modified="20190918014833039" tags="Dynamo Journal" title="17th September 2019" type="text/vnd.tiddlywiki">
+<div created="20190917162855100" modified="20190918020644419" tags="Dynamo Journal" title="17th September 2019" type="text/vnd.tiddlywiki">
 <pre>It looks like we may want to store information in our table, using the sorting key to our advantage.  I predict that we could use the following to implement the _Get Projects_ use case.
 
 | __ProjectId (Partition Key)__  | __Node (Sort Key)__  | __Title__  | __CreatedOn__  |
@@ -11000,7 +11000,11 @@ This would answer the questions (syntax is pseudocode):
 
 ---
 
-Or maybe just store the starred users as a set on the project at the head level?  We won't be duplicating the head, just the things below it.  Should give us an O(1) lookup time if the set can do a `contains()` that quickly.</pre>
+Or maybe just store the starred users as a set on the project at the head level?  We won't be duplicating the head, just the things below it.  Should give us an O(1) lookup time if the set can do a `contains()` that quickly.
+
+Could this also solve the many-to-many for contributors as well?  Can we just place a set at the head level?  It is already a top-level element.
+
+It is beginning to look like the solution for filtering is to either create a GSI for the item if it warrants it / is complex.  If it is a simple item like a string, maybe we should be looking at just using a set.  Let's try a ~PoC?</pre>
 </div>
 <div created="20190916154314553" modified="20190916165655248" tags="Semaphores Programming Concurrency" title="cs-511" type="text/vnd.tiddlywiki">
 <pre>CS-511 is a concurrent programming course at Stevens.  This should give me some basics on understanding concurrency at both a general level, as well as how to implement these concepts in languages such as Erlang and Java.
@@ -11049,8 +11053,51 @@ Note that this solution is not fair on writers – a writer will not get to writ
 <div created="20190917220806633" modified="20190917220817507" tags="" title="SAML">
 <pre>Top level for SAML</pre>
 </div>
-<div created="20190916165750326" modified="20190916165829635" tags="cs-511" title="Semaphores" type="text/vnd.tiddlywiki">
-<pre># Some markdown text</pre>
+<div created="20190916165750326" modified="20190920033224142" tags="cs-511" title="Semaphores" type="text/x-markdown">
+<pre>## What are Semaphores
+Semaphores are a higher level construct usually implemented by the Operating System that are used in many Programming Languages.  It has 2 primary functions:
+
+1. `wait` or `acquire`, which blocks until a permission is freed
+2. `signal` or `release`, which frees up a permission
+
+Note that when multiple threads are blocked waiting for a permission, once one opens, those threads do not go into the `running` state.  One of them gets picked, based on some selection algorithm, and that thread is put into the `ready` state.
+
+A _weak semaphore_ uses a set as a way of holding the waiting processes, meaning that any thread will be chosen at random to be placed in the `ready` state.  A _strong semaphore_ on the other hand, uses a queue to awaken the thread, so the order in which the threads are blocked is preserved.  Weak semaphores can sometimes cause an issue of starvation, as they could ignore a thread forever theoretically.
+
+### Types of Semaphores
+A __mutex__ is a binary semaphore, meaning it only has 0 or 1 permissions.  Semaphores that allow arbitrary numbers of permissions are __counting semaphores__.  A mutex is simply used to atomicize some operation amongst threads.
+
+Moreover, you can think of permissions like this:
+Permissions = initial permissions + releases - acquires, but never negative
+
+## Problems with Semaphores
+__Critical section problem__ - multiple processes want to access some shared resource
+__Order of execution problem__ - processes must coordinate the flow of some routine
+
+# Patterns with Semaphores
+
+## Producers / Consumers
+This is a common pattern of interaction involving semaphores.  With this, you need to take the difference in speed between each party into account.  Namely:
+
+* If you have an unbounded buffer between them:
+    * The producer can produce forever -- it's unbounded
+    * The consumer must wait if the buffer is empty
+
+* If you have a bounded buffer between them:
+    * The producer must wait if the buffer is full
+    * The consumer must wait if the buffer is empty
+
+If you have multiple producers and multiple consumers (multiple of either will do), then you need to assure integrity amongst each of those groups via a mutex.  Otherwise, they might end up looking at different places in the buffer and then things will get all jumbled
+
+## Readers / Writers
+Firstly define what each of the terms are:
+
+* Reader - accesses a resource but does not modify it
+* Writer - accesses a resources and may modify it
+
+You cannot simply use mutual exclusion here because that would not be optimal for the readers -- multiple readers can all examine something at the same time, however you can only ever have a sole writer and nobody else.
+
+For this to work, you will likely need to keep track of the number of readers attempting to access something -- the last one out will need to &quot;turn the lights off in the shop&quot; and release the semaphore.  To keep this fair to writers though, you might want to implement a service queue that both readers and writers can access.  That way, readers cannot crowd the semaphore and block writers out forever.</pre>
 </div>
 <div created="20190917220819689" modified="20190917221509975" tags="SAML" title="Service vs. Identity Provider">
 <pre>A user logs in with the identity provider.  The identity provider passes SAML attributes to the service provider when the user attempts to access those services.  We need to know what will be in those SAML attributes so that we can ensure proper architecture for our application.
