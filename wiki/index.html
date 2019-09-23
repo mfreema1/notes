@@ -425,9 +425,15 @@ Error message and password prompt
 
 <li>17th September 2019</li>
 
+<li>Assembly Lines</li>
+
 <li>cs-511</li>
 
 <li>Dynamo</li>
+
+<li>Freight and Passenger Trains</li>
+
+<li>Monitors</li>
 
 <li>Readers and Writers</li>
 
@@ -9984,7 +9990,7 @@ Error message and password prompt
 <div created="20190916154326007" modified="20190918013741987" title="$:/state/tab/sidebar--595412856">
 <pre>$:/core/ui/SideBar/Tools</pre>
 </div>
-<div created="20190918020345379" list="Semaphores [[17th September 2019]]" modified="20190920031011528" title="$:/StoryList">
+<div created="20190923151050802" list="cs-511 Monitors [[Assembly Lines]] [[Freight and Passenger Trains]]" modified="20190923151050802" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20190916161712643" modified="20190916161712643" title="$:/temp/HidePluginWarning">
@@ -10807,8 +10813,8 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20190916161527912" modified="20190918012325869" title="$:/temp/RemoteAssetSearch/$:/config/OfficialPluginLibrary">
 <pre>maruku</pre>
 </div>
-<div created="20190916162750281" modified="20190920031010195" title="$:/temp/search">
-<pre>cs-5</pre>
+<div created="20190916162750281" modified="20190923155319661" title="$:/temp/search">
+<pre></pre>
 </div>
 <div created="20190916161424322" modified="20190916161424322" tags="$:/tags/ServerConnection" title="$:/temp/ServerConnection/https://tiddlywiki.com/library/v5.1.21/index.html" url="https://tiddlywiki.com/library/v5.1.21/index.html">
 <pre>loaded</pre>
@@ -11006,6 +11012,60 @@ Could this also solve the many-to-many for contributors as well?  Can we just pl
 
 It is beginning to look like the solution for filtering is to either create a GSI for the item if it warrants it / is complex.  If it is a simple item like a string, maybe we should be looking at just using a set.  Let's try a ~PoC?</pre>
 </div>
+<div created="20190923152105777" modified="20190923154229400" tags="cs-511" title="Assembly Lines" type=" ">
+<pre>Semaphore[] permToProcess = { new Semaphore[0], new Semaphore[0, new Semaphore[0] }
+Semaphore[] doneProcessing = { new Semaphore[0], new Semaphore[0], new Semaphore[0] }
+Semaphore[] stations = { new Semaphore[1], new Semaphore[1], new Semaphore[1] };
+
+```
+thread Car: {
+    //car cannot move forward until it is done processing here
+    //go to station 0 first
+    stations[0].acquire();
+    permToProcess[0].release();
+    //wait for station 0 to complete work
+    doneProcessing[0].acquire();
+    
+
+    //go to station 1 next, only release once the next is open
+    stations[1].acquire();
+    stations[0].release();
+
+    permToProcess[1].release();
+    doneProcessing[1].acquire();
+
+    stations[2].acquire();
+    stations[1].release();
+
+    permToProcess[2].release();
+    doneProcessing[2].acquire();
+    stations[2].release();
+}
+
+thread MachineAtStation(i) {
+    while (true) {
+        permToProcess[i].acquire();
+        doneProcessing[i].release();
+    }
+}
+```
+
+Oftentimes we deal with fairness.  A common tactic to achieve fairness is to use an additional Semaphore as a blocking queue.  This is similar to the bathroom problem that we did earlier.  If someone is waiting at the door, a person cannot sneak past them and take the bathroom.
+
+```
+thread P {
+    serviceQueue.acquire(); //must be a strong semaphore to have a queue on awakening
+    resource.acquire();
+    serviceQueue.release();
+}
+
+thread Q {
+    serviceQueue.acquire();
+    resource.acquire();
+    serviceQueue.release();
+}
+```</pre>
+</div>
 <div created="20190916154314553" modified="20190916165655248" tags="Semaphores Programming Concurrency" title="cs-511" type="text/vnd.tiddlywiki">
 <pre>CS-511 is a concurrent programming course at Stevens.  This should give me some basics on understanding concurrency at both a general level, as well as how to implement these concepts in languages such as Erlang and Java.
 
@@ -11013,6 +11073,69 @@ So far, it looks like we may want to look into some books such as //The Little B
 </div>
 <div created="20190917001013484" modified="20190917001028078" tags="" title="Dynamo">
 <pre>Top level for Dynamo</pre>
+</div>
+<div created="20190923151059217" modified="20190923155313909" tags="cs-511" title="Freight and Passenger Trains">
+<pre>Remember that you only ever need a Semaphore to protect _blocking_ operations.  It is useless to mutex non-blocking operations, as there is no chance that they deadlock anything.
+
+```
+Semaphore permToLoad = new Semaphore(0);
+Semaphore doneLoading = new Semaphore(0);
+Semaphore[] stations = { new Semaphore(1); new Semaphore(1) };
+
+thread PassengerTrain(i) {
+    track[i].acquire();
+    track[1-i].acquire();
+}
+
+thread FreightTrain(i) {
+
+    //could also use a for loop
+    track[0].acquire();
+    track[1].acquire(); 
+    //this is free from deadlock!  Why?  
+    //(Could also just use mutex)
+
+    //Answer:  Because the acquire is atomic, we 
+    //are always grabbing in the same order,
+    //so we cannot split the stations among freight trains
+    permToLoad.release();
+    doneLoading.acquire();
+
+    track[0].release();
+    track[1].release();
+}
+
+```</pre>
+</div>
+<div created="20190923154304977" modified="20190923155234422" tags="cs-511" title="Monitors">
+<pre>Semaphores have some drawbacks to them.
+
+# They are low-level constructs, meaning that it is easy to forget an acquire or release.
+# They are not related to the data, meaning that they can appear all over the codebase.
+
+Monitors combine ADT and mutual exclusion -- adopted in many programming languages.  If the scheduler didn't force your thread to stop, but instead you voluntarily yielded, then many issues involving threads are removed.  Single-threaded programming languages unfortunately cannot be used to illustrate many of the issues in this course, simply because issues of concurrency don't come up very much.
+
+A monitor is simply the concept that every object has a lock.
+
+
+```
+monitor Counter {
+    private int counter = 0;
+    
+    public void inc() {
+        counter++;
+    }
+
+    public void dec() {
+        counter--;
+    }
+}
+```
+
+
+Because you put the keyword `monitor` on it, it assures that at most one thread can use this object at once, so you are thread safe.
+
+In Java, we use the `synchronized` keyword on a method to do this.  It is commonly seen as overkill to do this on a whole method, as you're cutting down the possible concurrency drastically.  In most cases, you should use a `synchronized` block to define a specific section of code as uninterruptible.</pre>
 </div>
 <div created="20190916165333623" modified="20190916165411861" tags="cs-511" title="Readers and Writers" type="text/vnd.tiddlywiki">
 <pre>Readers and Writers
