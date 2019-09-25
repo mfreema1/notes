@@ -9990,7 +9990,7 @@ Error message and password prompt
 <div created="20190916154326007" modified="20190918013741987" title="$:/state/tab/sidebar--595412856">
 <pre>$:/core/ui/SideBar/Tools</pre>
 </div>
-<div created="20190923151050802" list="cs-511 Monitors [[Assembly Lines]] [[Freight and Passenger Trains]]" modified="20190923151050802" title="$:/StoryList">
+<div created="20190925150348952" list="Monitors cs-511" modified="20190925150351563" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20190916161712643" modified="20190916161712643" title="$:/temp/HidePluginWarning">
@@ -10813,8 +10813,8 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20190916161527912" modified="20190918012325869" title="$:/temp/RemoteAssetSearch/$:/config/OfficialPluginLibrary">
 <pre>maruku</pre>
 </div>
-<div created="20190916162750281" modified="20190923155319661" title="$:/temp/search">
-<pre></pre>
+<div created="20190916162750281" modified="20190925150347896" title="$:/temp/search">
+<pre>cs-511</pre>
 </div>
 <div created="20190916161424322" modified="20190916161424322" tags="$:/tags/ServerConnection" title="$:/temp/ServerConnection/https://tiddlywiki.com/library/v5.1.21/index.html" url="https://tiddlywiki.com/library/v5.1.21/index.html">
 <pre>loaded</pre>
@@ -11107,7 +11107,7 @@ thread FreightTrain(i) {
 
 ```</pre>
 </div>
-<div created="20190923154304977" modified="20190923155234422" tags="cs-511" title="Monitors">
+<div created="20190923154304977" modified="20190925155221808" tags="cs-511" title="Monitors">
 <pre>Semaphores have some drawbacks to them.
 
 # They are low-level constructs, meaning that it is easy to forget an acquire or release.
@@ -11135,7 +11135,51 @@ monitor Counter {
 
 Because you put the keyword `monitor` on it, it assures that at most one thread can use this object at once, so you are thread safe.
 
-In Java, we use the `synchronized` keyword on a method to do this.  It is commonly seen as overkill to do this on a whole method, as you're cutting down the possible concurrency drastically.  In most cases, you should use a `synchronized` block to define a specific section of code as uninterruptible.</pre>
+In Java, we use the `synchronized` keyword on a method to do this.  It is commonly seen as overkill to do this on a whole method, as you're cutting down the possible concurrency drastically.  In most cases, you should use a `synchronized` block to define a specific section of code as uninterruptible.
+
+Apart from the lock, there are condition variables associated to the monitor.  They have three operations.
+
+# Cond.wait() -- releases the lock while it waits, _non-blocking_
+# Cond.signal()
+# Cond.empty()
+
+They also have a _queue_ of blocked processes.  Somewhat like a strong semaphore does.
+
+Notice that there is no notion of permits on a monitor.  If there is nobody waiting in the queue, then `signal()` is a no-op.
+
+```
+monitor PC {
+    Object buffer;
+
+    void produce(Object o) {
+        if(buffer != null) {
+            empty.wait();
+        }
+        buffer = o;
+        full.signal();
+    }
+
+    Object consume() {
+        if(buffer == null) {
+            full.wait();
+        }
+        Object temp = buffer;
+        empty.signal();
+        return temp;
+    }
+```
+
+Note that the above is not entirely correct.  There are cases which are not considered.
+
+There are two main strategies when dealing with monitors:
+# Signal and Urgent Wait
+# Signal and Continue
+
+What is correct code for one strategy will likely not be correct code for the other strategy.  _You need to know which pattern you are operating in_.
+
+Keep in mind that the condition that occurred when a thread was signaled will likely still not hold true when the thread is actually run.  As such, it often makes sense to check that the condition still holds when the `wait()` is over.  You could do this by surrounding `wait()` with a `while` loop.
+
+A semaphore can easily be implemented as a monitor.  We'll be revisiting some of the same problems we covered with semaphores instead with monitors.</pre>
 </div>
 <div created="20190916165333623" modified="20190916165411861" tags="cs-511" title="Readers and Writers" type="text/vnd.tiddlywiki">
 <pre>Readers and Writers
