@@ -149,6 +149,8 @@ Error message and password prompt
 
 <li>$:/config/PageControlButtons/Visibility/$:/core/ui/Buttons/theme</li>
 
+<li>$:/config/RelinkOnRename</li>
+
 <li>$:/core</li>
 
 <li>$:/DefaultTiddlers</li>
@@ -425,6 +427,8 @@ Error message and password prompt
 
 <li>17th September 2019</li>
 
+<li>3 Way Sequencer</li>
+
 <li>Assembly Lines</li>
 
 <li>cs-511</li>
@@ -436,6 +440,8 @@ Error message and password prompt
 <li>Monitors</li>
 
 <li>Readers and Writers</li>
+
+<li>Readers and Writers with Monitors</li>
 
 <li>SAML</li>
 
@@ -464,6 +470,9 @@ Error message and password prompt
 </div>
 <div created="20190916154337250" modified="20190916154337250" title="$:/config/PageControlButtons/Visibility/$:/core/ui/Buttons/theme">
 <pre>show</pre>
+</div>
+<div created="20190927154719369" modified="20190927154719369" title="$:/config/RelinkOnRename">
+<pre>yes</pre>
 </div>
 <div author="JeremyRuston" core-version="&gt;=5.0.0" dependents="" description="TiddlyWiki5 core" list="readme" plugin-priority="0" plugin-type="plugin" title="$:/core" type="application/json" version="5.1.21">
 <pre>{
@@ -9990,7 +9999,7 @@ Error message and password prompt
 <div created="20190916154326007" modified="20190918013741987" title="$:/state/tab/sidebar--595412856">
 <pre>$:/core/ui/SideBar/Tools</pre>
 </div>
-<div created="20190925150348952" list="Monitors cs-511" modified="20190925150351563" title="$:/StoryList">
+<div created="20190927152333542" list="Monitors [[3 Way Sequencer]] [[Readers and Writers with Monitors]]" modified="20190927152333542" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20190916161712643" modified="20190916161712643" title="$:/temp/HidePluginWarning">
@@ -10813,8 +10822,8 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20190916161527912" modified="20190918012325869" title="$:/temp/RemoteAssetSearch/$:/config/OfficialPluginLibrary">
 <pre>maruku</pre>
 </div>
-<div created="20190916162750281" modified="20190925150347896" title="$:/temp/search">
-<pre>cs-511</pre>
+<div created="20190916162750281" modified="20190927152331372" title="$:/temp/search">
+<pre>cs-51</pre>
 </div>
 <div created="20190916161424322" modified="20190916161424322" tags="$:/tags/ServerConnection" title="$:/temp/ServerConnection/https://tiddlywiki.com/library/v5.1.21/index.html" url="https://tiddlywiki.com/library/v5.1.21/index.html">
 <pre>loaded</pre>
@@ -11012,6 +11021,33 @@ Could this also solve the many-to-many for contributors as well?  Can we just pl
 
 It is beginning to look like the solution for filtering is to either create a GSI for the item if it warrants it / is complex.  If it is a simple item like a string, maybe we should be looking at just using a set.  Let's try a ~PoC?</pre>
 </div>
+<div created="20190927154745262" modified="20190928020333045" tags="Monitors Journal" title="3 Way Sequencer">
+<pre>Which paradigm are we writing this in?  Urgent wait or continue?
+
+TODO: Finish this exercise
+
+```
+monitor 3WS {
+
+    int state = 0;
+    
+    void first() {
+        if(state == 0) {
+            state = 1;
+            okToGoSecond.signal();
+        } else {
+            okToGoFirst.wait();
+            state = 1;
+        }
+    }
+
+    void second() {
+    }
+
+    void third() {
+    }
+}</pre>
+</div>
 <div created="20190923152105777" modified="20190923154229400" tags="cs-511" title="Assembly Lines" type=" ">
 <pre>Semaphore[] permToProcess = { new Semaphore[0], new Semaphore[0, new Semaphore[0] }
 Semaphore[] doneProcessing = { new Semaphore[0], new Semaphore[0], new Semaphore[0] }
@@ -11107,7 +11143,7 @@ thread FreightTrain(i) {
 
 ```</pre>
 </div>
-<div created="20190923154304977" modified="20190925155221808" tags="cs-511" title="Monitors">
+<div created="20190923154304977" modified="20190927152339552" tags="cs-511" title="Monitors">
 <pre>Semaphores have some drawbacks to them.
 
 # They are low-level constructs, meaning that it is easy to forget an acquire or release.
@@ -11135,51 +11171,7 @@ monitor Counter {
 
 Because you put the keyword `monitor` on it, it assures that at most one thread can use this object at once, so you are thread safe.
 
-In Java, we use the `synchronized` keyword on a method to do this.  It is commonly seen as overkill to do this on a whole method, as you're cutting down the possible concurrency drastically.  In most cases, you should use a `synchronized` block to define a specific section of code as uninterruptible.
-
-Apart from the lock, there are condition variables associated to the monitor.  They have three operations.
-
-# Cond.wait() -- releases the lock while it waits, _non-blocking_
-# Cond.signal()
-# Cond.empty()
-
-They also have a _queue_ of blocked processes.  Somewhat like a strong semaphore does.
-
-Notice that there is no notion of permits on a monitor.  If there is nobody waiting in the queue, then `signal()` is a no-op.
-
-```
-monitor PC {
-    Object buffer;
-
-    void produce(Object o) {
-        if(buffer != null) {
-            empty.wait();
-        }
-        buffer = o;
-        full.signal();
-    }
-
-    Object consume() {
-        if(buffer == null) {
-            full.wait();
-        }
-        Object temp = buffer;
-        empty.signal();
-        return temp;
-    }
-```
-
-Note that the above is not entirely correct.  There are cases which are not considered.
-
-There are two main strategies when dealing with monitors:
-# Signal and Urgent Wait
-# Signal and Continue
-
-What is correct code for one strategy will likely not be correct code for the other strategy.  _You need to know which pattern you are operating in_.
-
-Keep in mind that the condition that occurred when a thread was signaled will likely still not hold true when the thread is actually run.  As such, it often makes sense to check that the condition still holds when the `wait()` is over.  You could do this by surrounding `wait()` with a `while` loop.
-
-A semaphore can easily be implemented as a monitor.  We'll be revisiting some of the same problems we covered with semaphores instead with monitors.</pre>
+In Java, we use the `synchronized` keyword on a method to do this.  It is commonly seen as overkill to do this on a whole method, as you're cutting down the possible concurrency drastically.  In most cases, you should use a `synchronized` block to define a specific section of code as uninterruptible.</pre>
 </div>
 <div created="20190916165333623" modified="20190916165411861" tags="cs-511" title="Readers and Writers" type="text/vnd.tiddlywiki">
 <pre>Readers and Writers
@@ -11216,6 +11208,45 @@ thread Reader {
 There's a notion of cascading signaling, which occurs when one release triggers a sequential awakening of other threads that eventually give back a permit.
 
 Note that this solution is not fair on writers – a writer will not get to write as long as readers are around. We typically don't consider fairness all too much in this course, mainly because it is very hard to find solutions that are both correct and fair. Take a look at The Little Book of Semaphores for further learning.</pre>
+</div>
+<div created="20190927152342693" modified="20190927154807446" tags="Monitors Journal" title="Readers and Writers with Monitors">
+<pre>```
+monitor RW {
+
+    int readers = 0;
+    int writers = 0;
+    
+    void start_read() {
+        if (writers != 0 || !okToWrite.empty()) {
+            okToRead.wait();
+        }
+        readers++;
+        okToRead.signal();  // cascading signaling, a chain of threads waking eachother up
+    }
+
+    void stop_read() {
+        readers--;
+        if (readers == 0) {
+            okToWrite.signal();
+        }
+    }
+
+    void start_write() {
+        if (writers != 0 || readers != 0) {
+            okToWrite.wait();
+        }
+    }
+
+    void stop_write() {
+        writers--;
+        if (okToRead.emtpy()) {
+            okToWrite.signal();
+        } else {
+            okToRead.signal();
+        }
+    }
+}
+```</pre>
 </div>
 <div created="20190917220806633" modified="20190917220817507" tags="" title="SAML">
 <pre>Top level for SAML</pre>
